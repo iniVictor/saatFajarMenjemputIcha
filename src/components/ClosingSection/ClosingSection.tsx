@@ -5,14 +5,14 @@ import { SafeImage } from "@/components/UI/SafeImage";
 import { coupleNames } from "@/utils/format";
 
 export function ClosingSection() {
-  const { couple, copy } = weddingConfig;
+  const { couple, copy, cover } = weddingConfig;
   const names = coupleNames(couple.bride.name, couple.groom.name, couple.ampersand);
 
   return (
     <section className="relative overflow-hidden pb-[7.5rem] text-center">
       <div className="bg-[var(--color-nav)] px-8 pb-8 pt-10">
         <div className="circle-frame border-[3px] border-[#f7efe4]">
-          <SafeImage src="/images/hero.jpg" alt={names} />
+          <SafeImage src={cover.heroImage} alt={names} />
         </div>
       </div>
       <svg

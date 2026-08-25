@@ -62,18 +62,22 @@ function Invitation() {
             />
           ) : null}
 
-          <Hero />
-          <QuoteSection />
-          <CoupleSection />
-          <LoveStory />
-          <Countdown />
-          <EventSection />
-          <StreamingSection />
-          <Gallery />
-          <DigitalGift />
-          <PhysicalGift />
-          <Wishes guestName={guestName} />
-          <ClosingSection />
+          {opened ? (
+            <>
+              <Hero />
+              <QuoteSection />
+              <CoupleSection />
+              <LoveStory />
+              <Countdown />
+              <EventSection />
+              <StreamingSection />
+              <Gallery />
+              <DigitalGift />
+              <PhysicalGift />
+              <Wishes guestName={guestName} />
+              <ClosingSection />
+            </>
+          ) : null}
         </div>
 
         {opened ? (

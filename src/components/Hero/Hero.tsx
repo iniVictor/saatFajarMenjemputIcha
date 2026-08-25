@@ -7,7 +7,7 @@ import { coupleNames } from "@/utils/format";
 import { fadeScale } from "@/utils/motion";
 
 export function Hero() {
-  const { couple, wedding, copy } = weddingConfig;
+  const { couple, wedding, copy, cover } = weddingConfig;
   const names = coupleNames(couple.bride.name, couple.groom.name, couple.ampersand);
 
   return (
@@ -27,10 +27,9 @@ export function Hero() {
             />
             <div className="circle-frame">
               <SafeImage
-                src="/images/hero.jpg"
+                src={cover.heroImage}
                 alt={names}
                 loading="eager"
-                fetchPriority="high"
               />
             </div>
           </div>

@@ -66,11 +66,11 @@ Replace files in `public/images/` using the same names, or point the config path
 
 | File | Used for |
 | --- | --- |
-| `cover.jpg` | Opening screen. Geser crop lewat `cover.positionX` / `cover.positionY` di `wedding.ts` (0–100). `positionX`: 0 kiri, 50 tengah, 100 kanan. `positionY`: 0 atas, 50 tengah, 100 bawah. |
-| `hero.jpg` | Hero + closing portrait |
-| `bride.jpg` / `groom.jpg` | Couple section. Atur crop di masing-masing `couple.bride` / `couple.groom`: `positionX` (0 kiri – 100 kanan), `positionY` (0 atas – 100 bawah), `zoom` (1 normal, sampai 20). |
-| `story-01.jpg` … | Love story. Sembunyikan seluruh section dengan `loveStory.enabled: false`. |
-| `gallery-01.webp` … | Gallery (WebP, max 1400px). File `.jpg` asli boleh tetap sebagai sumber. |
+| `cover.webp` | Opening screen. Geser crop lewat `cover.positionX` / `cover.positionY` di `wedding.ts` (0–100). `positionX`: 0 kiri, 50 tengah, 100 kanan. `positionY`: 0 atas, 50 tengah, 100 bawah. |
+| `hero.webp` | Hero + closing portrait (`cover.heroImage`) |
+| `bride.webp` / `groom.webp` | Couple section. Atur crop di masing-masing `couple.bride` / `couple.groom`: `positionX` (0 kiri – 100 kanan), `positionY` (0 atas – 100 bawah), `zoom` (1 normal, sampai 20). |
+| `story-01.webp` … | Love story. Sembunyikan seluruh section dengan `loveStory.enabled: false`. |
+| `gallery-01.webp` … | Gallery (WebP, max 1400px). Jangan taruh file `.jpg` di `public/` — ikut ter-deploy. |
 | `decor-floral-01.svg` / `decor-floral-02.svg` | Corner ornaments |
 | `decor-wreath.svg` | Hero frame |
 
@@ -113,10 +113,10 @@ hides the section. Set `enabled: true` and a `url` to show **Watch Live**.
 ```ts
 music: {
   enabled: true,
-  src: "/music/wedding.mp3",
+  src: "/music/The Way You Look At Me - Christian Bautista (Piano Karaoke).mp3",
   title: "Lagu latar undangan",
-  loopStart: 12,
-  loopEnd: 72,
+  loopStart: 8,
+  loopEnd: 40,
 }
 ```
 

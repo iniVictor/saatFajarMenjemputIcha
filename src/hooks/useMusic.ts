@@ -34,10 +34,10 @@ export function useMusic({
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    if (!enabled || !src) return;
+    if (!enabled || !src || !unlocked) return;
 
     const audio = new Audio(src);
-    audio.preload = "auto";
+    audio.preload = "metadata";
     audio.volume = 0.42;
     audio.loop = false;
     audioRef.current = audio;
@@ -85,7 +85,7 @@ export function useMusic({
       audio.removeEventListener("error", onError);
       audioRef.current = null;
     };
-  }, [enabled, loopEnd, loopStart, src]);
+  }, [enabled, loopEnd, loopStart, src, unlocked]);
 
   const play = useCallback(async () => {
     const audio = audioRef.current;

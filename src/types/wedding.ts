@@ -68,6 +68,7 @@ export interface MusicConfig {
 
 export interface CoverConfig {
   image: string;
+  heroImage: string;
   positionX: number;
   positionY: number;
 }

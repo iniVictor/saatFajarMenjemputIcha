@@ -10,7 +10,7 @@ export const weddingConfig: WeddingConfig = {
       mother: "Ibu Nurfidiyah",
       orderLabel: "Putri pertama",
       instagram: "https://instagram.com/wardha_icha",
-      image: "/images/bride.jpg",
+      image: "/images/bride.webp",
       imageAlt: "Wardatun Nafisah",
       positionX: 35,
       positionY: 50,
@@ -23,7 +23,7 @@ export const weddingConfig: WeddingConfig = {
       mother: "Ibu Astutik",
       orderLabel: "Putra pertama",
       instagram: "https://instagram.com/fajarh33__",
-      image: "/images/groom.jpg",
+      image: "/images/groom.webp",
       imageAlt: "Fajar Hidayatulloh",
       positionX: 67,
       positionY: 45,
@@ -37,7 +37,8 @@ export const weddingConfig: WeddingConfig = {
   },
 
   cover: {
-    image: "/images/cover.jpg",
+    image: "/images/cover.webp",
+    heroImage: "/images/hero.webp",
     positionX: 47,
     positionY: 20,
   },
@@ -80,21 +81,21 @@ export const weddingConfig: WeddingConfig = {
       date: "15 Agustus 2025",
       description:
         "Dari obrolan yang terasa ringan, kami belajar mengenali satu sama lain. Ada ketenangan yang tumbuh pelan, tanpa perlu dikesankan.",
-      image: "/images/story-01.jpg",
+        image: "/images/story-01.webp",
     },
     {
       title: "Lamaran",
       date: "14 Juni 2026",
       description:
         "Dengan restu keluarga, kami memilih menapaki jalan yang lebih pasti. Hari itu menjadi doa yang diucapkan bersama, bukan hanya janji di antara dua orang.",
-      image: "/images/story-02.jpg",
+        image: "/images/story-02.webp",
     },
     {
       title: "Menuju Hari Bahagia",
       date: "September 2026",
       description:
         "Kini kami bersiap menyatukan langkah dalam ikatan yang kami jaga dengan iman, kesabaran, dan kasih yang terus belajar.",
-      image: "/images/story-03.jpg",
+        image: "/images/story-03.webp",
     },
     ],
   },
@@ -108,23 +109,12 @@ export const weddingConfig: WeddingConfig = {
     "/images/gallery-06.webp",
     "/images/gallery-07.webp",
     "/images/gallery-08.webp",
-    //"/images/gallery-09.webp",
     "/images/gallery-10.webp",
     "/images/gallery-11.webp",
     "/images/gallery-12.webp",
     "/images/gallery-13.webp",
     "/images/gallery-14.webp",
-    //"/images/gallery-15.webp",
-    //"/images/gallery-16.webp",
-    //"/images/gallery-17.webp",
-    //"/images/gallery-18.webp",
-    //"/images/gallery-19.webp",
     "/images/gallery-20.webp",
-    //"/images/gallery-21.webp",
-    //"/images/gallery-22.webp",
-    //"/images/gallery-23.webp",
-    //"/images/gallery-24.webp",
-    //"/images/gallery-25.webp",
   ],
 
   streaming: {
@@ -169,7 +159,7 @@ export const weddingConfig: WeddingConfig = {
   seo: {
     title: "The Wedding of Icha & Fajar",
     description: "Our wedding invitation.",
-    ogImage: "/images/cover.jpg",
+    ogImage: "/images/cover.webp",
   },
 
   theme: {
