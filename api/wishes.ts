@@ -1,31 +1,52 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { createWish, listWishes } from "../lib/wishStore";
 
-function json(status: number, payload: unknown) {
-  return Response.json(payload, {
-    status,
-    headers: { "Cache-Control": "no-store" },
-  });
+type ApiRequest = IncomingMessage & { body?: unknown };
+
+function send(res: ServerResponse, status: number, payload: unknown) {
+  res.statusCode = status;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Cache-Control", "no-store");
+  res.end(JSON.stringify(payload));
 }
 
-export async function GET() {
-  try {
-    return json(200, await listWishes());
-  } catch (error) {
-    console.error("GET /api/wishes", error);
-    return json(500, { error: "Gagal memuat ucapan." });
-  }
-}
-
-export async function POST(request: Request) {
-  try {
-    const body: unknown = await request.json();
-    const result = await createWish(body);
-    if (!result.ok) {
-      return json(result.status, { error: result.error });
+async function readBody(req: ApiRequest): Promise<unknown> {
+  if (req.body !== undefined) {
+    if (typeof req.body === "string") {
+      return req.body.trim() ? JSON.parse(req.body) : {};
     }
-    return json(201, result.wish);
+    return req.body;
+  }
+
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  }
+  const raw = Buffer.concat(chunks).toString("utf8").trim();
+  return raw ? JSON.parse(raw) : {};
+}
+
+export default async function handler(req: ApiRequest, res: ServerResponse) {
+  try {
+    if (req.method === "GET" || req.method === "HEAD") {
+      send(res, 200, await listWishes());
+      return;
+    }
+
+    if (req.method === "POST") {
+      const result = await createWish(await readBody(req));
+      if (!result.ok) {
+        send(res, result.status, { error: result.error });
+        return;
+      }
+      send(res, 201, result.wish);
+      return;
+    }
+
+    res.setHeader("Allow", "GET, POST");
+    send(res, 405, { error: "Method not allowed" });
   } catch (error) {
-    console.error("POST /api/wishes", error);
-    return json(500, { error: "Gagal menyimpan ucapan." });
+    console.error("api/wishes", error);
+    send(res, 500, { error: "Gagal memuat ucapan." });
   }
 }

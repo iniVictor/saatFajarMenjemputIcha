@@ -1,8 +1,28 @@
-import type { Attendance, Wish } from "../src/types/wedding";
-import { sanitizeWishMessage, sanitizeWishName } from "../src/utils/sanitize";
 import { getMongoClient, getWishesDb } from "./mongodb";
 
+type Attendance = "attending" | "not_attending";
+
+interface Wish {
+  id: string;
+  name: string;
+  message: string;
+  attendance: Attendance;
+  createdAt: string;
+}
+
 const COLLECTION = "wishes";
+const MAX_NAME = 80;
+const MAX_MESSAGE = 500;
+
+function stripUnsafeText(raw: string, maxLength: number): string {
+  return raw
+    .replace(/<[^>]*>/g, "")
+    .replace(/[<>{}[\]\\]/g, "")
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
 
 function wishes() {
   return getWishesDb().collection(COLLECTION);
@@ -63,8 +83,9 @@ export async function createWish(input: unknown): Promise<
   }
 
   const body = input as { name?: unknown; message?: unknown; attendance?: unknown };
-  const name = typeof body.name === "string" ? sanitizeWishName(body.name) : "";
-  const message = typeof body.message === "string" ? sanitizeWishMessage(body.message) : "";
+  const name = typeof body.name === "string" ? stripUnsafeText(body.name, MAX_NAME) : "";
+  const message =
+    typeof body.message === "string" ? stripUnsafeText(body.message, MAX_MESSAGE) : "";
 
   if (name.length < 2) {
     return { ok: false, status: 400, error: "Mohon isi nama Anda." };

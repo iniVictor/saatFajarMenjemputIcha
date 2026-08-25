@@ -1,23 +1,19 @@
-import { MongoClient, type MongoClientOptions } from "mongodb";
+import { MongoClient } from "mongodb";
 import { attachDatabasePool } from "@vercel/functions";
-
-const options: MongoClientOptions = {
-  appName: "devrel.vercel.integration",
-  maxIdleTimeMS: 5000,
-  serverSelectionTimeoutMS: 10000,
-};
 
 function firstEnv(...keys: string[]): string {
   for (const key of keys) {
-    const value = process.env[key]?.trim();
-    if (value) return value;
+    const value = process.env[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
   }
   return "";
 }
 
 function firstEnvMatching(pattern: RegExp): string {
   for (const [key, value] of Object.entries(process.env)) {
-    if (pattern.test(key) && value?.trim()) return value.trim();
+    if (!pattern.test(key) || typeof value !== "string") continue;
+    const trimmed = value.trim();
+    if (trimmed) return trimmed;
   }
   return "";
 }
@@ -56,7 +52,11 @@ let client: MongoClient | undefined;
 
 export function getMongoClient(): MongoClient {
   if (!client) {
-    client = new MongoClient(readMongoUri(), options);
+    client = new MongoClient(readMongoUri(), {
+      appName: "devrel.vercel.integration",
+      maxIdleTimeMS: 5000,
+      serverSelectionTimeoutMS: 10000,
+    });
     attachDatabasePool(client);
   }
   return client;
@@ -65,5 +65,3 @@ export function getMongoClient(): MongoClient {
 export function getWishesDb() {
   return getMongoClient().db(readMongoDatabaseName(readMongoUri()));
 }
-
-export default getMongoClient;

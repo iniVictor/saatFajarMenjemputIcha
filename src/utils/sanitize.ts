@@ -1,5 +1,4 @@
 const MAX_GUEST_LENGTH = 80;
-const MAX_WISH_MESSAGE = 500;
 
 function stripUnsafeText(raw: string, maxLength: number): string {
   return raw
@@ -20,12 +19,4 @@ export function sanitizeGuestName(raw: string, fallback: string): string {
   }
 
   return stripUnsafeText(decoded, MAX_GUEST_LENGTH) || fallback;
-}
-
-export function sanitizeWishName(raw: string): string {
-  return stripUnsafeText(raw, MAX_GUEST_LENGTH);
-}
-
-export function sanitizeWishMessage(raw: string): string {
-  return stripUnsafeText(raw, MAX_WISH_MESSAGE);
 }
