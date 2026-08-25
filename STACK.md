@@ -100,10 +100,10 @@ src/
   utils/
   styles/globals.css
 api/
-  wishes.ts               # GET/POST ucapan
+  wishes.js               # GET/POST ucapan
 lib/
-  mongodb.ts              # koneksi Atlas
-  wishStore.ts            # baca/tulis collection wishes
+  mongodb.js              # koneksi Atlas
+  wishStore.js            # baca/tulis collection wishes
 public/
   images/
   music/

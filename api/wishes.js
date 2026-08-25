@@ -1,16 +1,13 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
-import { createWish, listWishes } from "../lib/wishStore";
+import { createWish, listWishes } from "../lib/wishStore.js";
 
-type ApiRequest = IncomingMessage & { body?: unknown };
-
-function send(res: ServerResponse, status: number, payload: unknown) {
+function send(res, status, payload) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
   res.end(JSON.stringify(payload));
 }
 
-async function readBody(req: ApiRequest): Promise<unknown> {
+async function readBody(req) {
   if (req.body !== undefined) {
     if (typeof req.body === "string") {
       return req.body.trim() ? JSON.parse(req.body) : {};
@@ -18,7 +15,7 @@ async function readBody(req: ApiRequest): Promise<unknown> {
     return req.body;
   }
 
-  const chunks: Buffer[] = [];
+  const chunks = [];
   for await (const chunk of req) {
     chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
   }
@@ -26,7 +23,7 @@ async function readBody(req: ApiRequest): Promise<unknown> {
   return raw ? JSON.parse(raw) : {};
 }
 
-export default async function handler(req: ApiRequest, res: ServerResponse) {
+export default async function handler(req, res) {
   try {
     if (req.method === "GET" || req.method === "HEAD") {
       send(res, 200, await listWishes());

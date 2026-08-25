@@ -145,10 +145,10 @@ src/
   utils/
   styles/       design tokens
 lib/
-  mongodb.ts    Atlas client
-  wishStore.ts  baca/tulis ucapan
+  mongodb.js    Atlas client
+  wishStore.js  baca/tulis ucapan
 api/
-  wishes.ts     GET/POST ucapan
+  wishes.js     GET/POST ucapan
 public/
   images/
   music/

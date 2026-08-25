@@ -61,7 +61,7 @@ function wishesDevApi(): Plugin {
 
         void (async () => {
           try {
-            const store = (await server.ssrLoadModule("/lib/wishStore.ts")) as {
+            const store = (await server.ssrLoadModule("/lib/wishStore.js")) as {
               listWishes: () => Promise<unknown>;
               createWish: (
                 input: unknown,
