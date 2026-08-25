@@ -1,11 +1,11 @@
 import type { Attendance, Wish } from "../src/types/wedding";
 import { sanitizeWishMessage, sanitizeWishName } from "../src/utils/sanitize";
-import client from "./mongodb";
+import { getMongoClient, getWishesDb } from "./mongodb";
 
 const COLLECTION = "wishes";
 
-function database() {
-  return client.db(process.env.MONGODB_DB || process.env.MONGODB_DATABASE || "undangan");
+function wishes() {
+  return getWishesDb().collection(COLLECTION);
 }
 
 function isAttendance(value: unknown): value is Attendance {
@@ -44,9 +44,8 @@ function toWish(doc: {
 }
 
 export async function listWishes(): Promise<Wish[]> {
-  await client.connect();
-  const docs = await database()
-    .collection(COLLECTION)
+  await getMongoClient().connect();
+  const docs = await wishes()
     .find({})
     .sort({ createdAt: -1 })
     .limit(200)
@@ -78,8 +77,8 @@ export async function createWish(input: unknown): Promise<
   }
 
   const createdAt = new Date();
-  await client.connect();
-  const result = await database().collection(COLLECTION).insertOne({
+  await getMongoClient().connect();
+  const result = await wishes().insertOne({
     name,
     message,
     attendance: body.attendance,

@@ -97,9 +97,11 @@ function wishesDevApi(): Plugin {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, import.meta.dirname, "");
-  process.env.MONGODB_URI ??= env.MONGODB_URI || env.database_MONGODB_URI;
-  process.env.database_MONGODB_URI ??= env.database_MONGODB_URI;
-  process.env.MONGODB_DB ??= env.MONGODB_DB || "undangan";
+  for (const [key, value] of Object.entries(env)) {
+    if (key.includes("MONGODB") && value) {
+      process.env[key] ??= value;
+    }
+  }
 
   return {
     plugins: [

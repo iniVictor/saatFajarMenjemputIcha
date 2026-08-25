@@ -154,7 +154,7 @@ public/
   music/
 ```
 
-Wishes are stored in MongoDB Atlas through `GET`/`POST /api/wishes`. Set `MONGODB_URI` (Vercel does this when the Atlas integration is connected) and optionally `MONGODB_DB` (default `undangan`). For local development, copy `.env.example` to `.env.local`.
+Wishes are stored in MongoDB Atlas through `GET`/`POST /api/wishes`. Vercel Atlas injects `MONGODB_URI` (sometimes prefixed, e.g. `database_MONGODB_URI`). The default database name matches the cluster: `atlas-inv-fajic`. Override with `MONGODB_DB` if needed. For local development, copy `.env.example` to `.env.local`.
 
 ## Assumptions
 

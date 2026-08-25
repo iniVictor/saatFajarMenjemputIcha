@@ -1,36 +1,31 @@
 import { createWish, listWishes } from "../lib/wishStore";
 
-interface ApiRequest {
-  method?: string;
-  body?: unknown;
+function json(status: number, payload: unknown) {
+  return Response.json(payload, {
+    status,
+    headers: { "Cache-Control": "no-store" },
+  });
 }
 
-interface ApiResponse {
-  setHeader(name: string, value: string): void;
-  status(code: number): { json(body: unknown): unknown };
-}
-
-export default async function handler(req: ApiRequest, res: ApiResponse) {
-  res.setHeader("Cache-Control", "no-store");
-
+export async function GET() {
   try {
-    if (req.method === "GET") {
-      return res.status(200).json(await listWishes());
-    }
+    return json(200, await listWishes());
+  } catch (error) {
+    console.error("GET /api/wishes", error);
+    return json(500, { error: "Gagal memuat ucapan." });
+  }
+}
 
-    if (req.method === "POST") {
-      const result = await createWish(req.body);
-      if (!result.ok) {
-        return res.status(result.status).json({ error: result.error });
-      }
-      return res.status(201).json(result.wish);
+export async function POST(request: Request) {
+  try {
+    const body: unknown = await request.json();
+    const result = await createWish(body);
+    if (!result.ok) {
+      return json(result.status, { error: result.error });
     }
-
-    res.setHeader("Allow", "GET, POST");
-    return res.status(405).json({ error: "Method not allowed" });
-  } catch {
-    return res.status(500).json({
-      error: req.method === "POST" ? "Gagal menyimpan ucapan." : "Gagal memuat ucapan.",
-    });
+    return json(201, result.wish);
+  } catch (error) {
+    console.error("POST /api/wishes", error);
+    return json(500, { error: "Gagal menyimpan ucapan." });
   }
 }
