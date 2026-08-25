@@ -7,6 +7,7 @@ interface RSVPProps {
   message: string;
   attendance: Attendance;
   error: string;
+  submitting?: boolean;
   onNameChange: (value: string) => void;
   onMessageChange: (value: string) => void;
   onAttendanceChange: (value: Attendance) => void;
@@ -18,6 +19,7 @@ export function RSVP({
   message,
   attendance,
   error,
+  submitting = false,
   onNameChange,
   onMessageChange,
   onAttendanceChange,
@@ -75,8 +77,8 @@ export function RSVP({
         />
       </label>
       {error ? <p className="text-[12px] text-[#9a3b32]">{error}</p> : null}
-      <button type="submit" className="btn-invite">
-        {copy.sendWish}
+      <button type="submit" className={`btn-invite ${submitting ? "opacity-60" : ""}`} disabled={submitting}>
+        {submitting ? "Mengirim..." : copy.sendWish}
       </button>
     </form>
   );

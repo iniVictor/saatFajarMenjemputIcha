@@ -1,6 +1,6 @@
 # Teknologi & Stack
 
-Undangan digital v.2.0 adalah **Single Page Application** (SPA) frontend-only. Tidak ada backend. Data pernikahan hidup di konfigurasi; ucapan/RSVP disimpan di `localStorage`.
+Undangan digital v.2.0 adalah **Single Page Application** (SPA) Vite. Data pernikahan hidup di konfigurasi; ucapan/RSVP disimpan di MongoDB Atlas lewat API serverless `/api/wishes`.
 
 ## Ringkasan
 
@@ -12,6 +12,8 @@ Undangan digital v.2.0 adalah **Single Page Application** (SPA) frontend-only. T
 | Styling | Tailwind CSS | 4 |
 | Animasi | Framer Motion | 13 |
 | Ikon | Lucide React | 1 |
+| Database | MongoDB Atlas | — |
+| API | Vercel Functions | — |
 | Linter | Oxlint | 1 |
 | Package manager | npm | — |
 
@@ -91,13 +93,17 @@ src/
   main.tsx
   config/wedding.ts       # semua data & tema (sumber kustomisasi)
   types/wedding.ts
-  data/mock.ts            # seed ucapan
-  services/wishService.ts # get/submit RSVP (siap diganti API)
+  services/wishService.ts # GET/POST /api/wishes (MongoDB)
   hooks/                  # countdown, musik, scroll spy, guest, toast
   pages/KirimUndangan.tsx
   components/             # section UI
   utils/
   styles/globals.css
+api/
+  wishes.ts               # GET/POST ucapan
+lib/
+  mongodb.ts              # koneksi Atlas
+  wishStore.ts            # baca/tulis collection wishes
 public/
   images/
   music/
@@ -111,10 +117,10 @@ Kustomisasi undangan: ubah `src/config/wedding.ts` + file di `public/`. Komponen
 | --- | --- |
 | Nama, acara, rekening, copy, tema | `wedding.ts` (compile-time) |
 | Status buka undangan | `sessionStorage` (per tab) |
-| Ucapan & konfirmasi hadir | `localStorage` via `wishService` |
+| Ucapan & konfirmasi hadir | MongoDB Atlas via `/api/wishes` |
 | Musik loop | config `loopStart` / `loopEnd` (detik) |
 
-`wishService` sengaja terpisah agar nanti bisa diganti REST, Laravel, Supabase, atau Firebase tanpa menulis ulang form RSVP.
+`wishService` memanggil API serverless. Data yang sama terlihat di semua perangkat.
 
 ## Fitur teknis terkait undangan
 
@@ -127,9 +133,8 @@ Kustomisasi undangan: ubah `src/config/wedding.ts` + file di `public/`. Komponen
 
 ## Yang tidak dipakai (sengaja)
 
-- Next.js / SSR — undangan adalah klien statis
+- Next.js / SSR — undangan adalah SPA Vite + API serverless
 - React Router — hanya dua path
-- Backend / database — belum
 - State library (Redux, Zustand) — state lokal sudah cukup
 
 ## Font stack di CSS

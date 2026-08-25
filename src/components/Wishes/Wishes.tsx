@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { RSVP } from "@/components/RSVP/RSVP";
 import { Reveal } from "@/components/UI/Reveal";
 import { weddingConfig } from "@/config/wedding";
@@ -14,16 +14,41 @@ interface WishesProps {
 export function Wishes({ guestName }: WishesProps) {
   const { copy } = weddingConfig;
   const { showToast } = useToast();
-  const [wishes, setWishes] = useState<Wish[]>(() => wishService.getWishes());
+  const [wishes, setWishes] = useState<Wish[]>([]);
   const [name, setName] = useState(guestName);
   const [message, setMessage] = useState("");
   const [attendance, setAttendance] = useState<Attendance>("attending");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   const stats = useMemo(() => wishService.getAttendanceStats(wishes), [wishes]);
 
-  function onSubmit(event: FormEvent) {
+  useEffect(() => {
+    let cancelled = false;
+
+    void wishService
+      .getWishes()
+      .then((next) => {
+        if (!cancelled) setWishes(next);
+      })
+      .catch((cause: unknown) => {
+        if (cancelled) return;
+        setError(cause instanceof Error ? cause.message : "Gagal memuat ucapan.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function onSubmit(event: FormEvent) {
     event.preventDefault();
+    if (submitting) return;
+
     const trimmedName = name.trim();
     const trimmedMessage = message.trim();
 
@@ -36,15 +61,23 @@ export function Wishes({ guestName }: WishesProps) {
       return;
     }
 
-    const wish = wishService.submitWish({
-      name: trimmedName,
-      message: trimmedMessage,
-      attendance,
-    });
-    setWishes((current) => [wish, ...current]);
-    setMessage("");
+    setSubmitting(true);
     setError("");
-    showToast(copy.wishSuccess);
+
+    try {
+      const wish = await wishService.submitWish({
+        name: trimmedName,
+        message: trimmedMessage,
+        attendance,
+      });
+      setWishes((current) => [wish, ...current]);
+      setMessage("");
+      showToast(copy.wishSuccess);
+    } catch (cause: unknown) {
+      setError(cause instanceof Error ? cause.message : "Gagal menyimpan ucapan.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -70,6 +103,7 @@ export function Wishes({ guestName }: WishesProps) {
           message={message}
           attendance={attendance}
           error={error}
+          submitting={submitting}
           onNameChange={setName}
           onMessageChange={setMessage}
           onAttendanceChange={setAttendance}
@@ -77,6 +111,12 @@ export function Wishes({ guestName }: WishesProps) {
         />
 
         <div className="wish-scroll mt-5 space-y-3">
+          {loading ? (
+            <p className="text-center text-[13px] text-[var(--color-muted)]">Memuat ucapan...</p>
+          ) : null}
+          {!loading && wishes.length === 0 ? (
+            <p className="text-center text-[13px] text-[var(--color-muted)]">Belum ada ucapan.</p>
+          ) : null}
           {wishes.map((wish) => (
             <article
               key={wish.id}

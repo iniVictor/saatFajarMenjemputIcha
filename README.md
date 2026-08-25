@@ -139,18 +139,22 @@ All Indonesian/English phrases live in `copy`. Page title, description, and Open
 src/
   components/   UI sections
   config/       wedding.ts
-  data/         mock RSVP seed
   hooks/
-  services/     wishService (localStorage, API-ready)
+  services/     wishService (MongoDB via /api/wishes)
   types/
   utils/
   styles/       design tokens
+lib/
+  mongodb.ts    Atlas client
+  wishStore.ts  baca/tulis ucapan
+api/
+  wishes.ts     GET/POST ucapan
 public/
   images/
   music/
 ```
 
-Wishes are stored in `localStorage` through `src/services/wishService.ts`. Swap that module later for REST, Laravel, Supabase, or Firebase without rewriting the form.
+Wishes are stored in MongoDB Atlas through `GET`/`POST /api/wishes`. Set `MONGODB_URI` (Vercel does this when the Atlas integration is connected) and optionally `MONGODB_DB` (default `undangan`). For local development, copy `.env.example` to `.env.local`.
 
 ## Assumptions
 

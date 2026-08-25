@@ -1,28 +1,4 @@
-import { initialWishes } from "@/data/mock";
 import type { AttendanceStats, Wish } from "@/types/wedding";
-
-const STORAGE_KEY = "wedding-wishes-v2";
-
-function canUseStorage(): boolean {
-  try {
-    return typeof window !== "undefined" && Boolean(window.localStorage);
-  } catch {
-    return false;
-  }
-}
-
-function readStored(): Wish[] | null {
-  if (!canUseStorage()) return null;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return null;
-    return parsed.filter(isWish);
-  } catch {
-    return null;
-  }
-}
 
 function isWish(value: unknown): value is Wish {
   if (!value || typeof value !== "object") return false;
@@ -36,37 +12,44 @@ function isWish(value: unknown): value is Wish {
   );
 }
 
-function persist(wishes: Wish[]): void {
-  if (!canUseStorage()) return;
+async function readError(response: Response): Promise<string> {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
+    const data: unknown = await response.json();
+    if (data && typeof data === "object" && "error" in data) {
+      const error = (data as { error: unknown }).error;
+      if (typeof error === "string" && error.trim()) return error;
+    }
   } catch {
-    /* private mode / quota */
+    /* ignore */
   }
+  return "Gagal terhubung ke database ucapan.";
 }
 
-export function getWishes(): Wish[] {
-  return readStored() ?? [...initialWishes];
+export async function getWishes(): Promise<Wish[]> {
+  const response = await fetch("/api/wishes");
+  if (!response.ok) throw new Error(await readError(response));
+  const data: unknown = await response.json();
+  if (!Array.isArray(data)) return [];
+  return data.filter(isWish);
 }
 
-export function submitWish(input: {
+export async function submitWish(input: {
   name: string;
   message: string;
   attendance: Wish["attendance"];
-}): Wish {
-  const wish: Wish = {
-    id: `wish-${Date.now()}`,
-    name: input.name.trim(),
-    message: input.message.trim(),
-    attendance: input.attendance,
-    createdAt: new Date().toISOString(),
-  };
-  const next = [wish, ...getWishes()];
-  persist(next);
-  return wish;
+}): Promise<Wish> {
+  const response = await fetch("/api/wishes", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) throw new Error(await readError(response));
+  const data: unknown = await response.json();
+  if (!isWish(data)) throw new Error("Gagal menyimpan ucapan.");
+  return data;
 }
 
-export function getAttendanceStats(wishes: Wish[] = getWishes()): AttendanceStats {
+export function getAttendanceStats(wishes: Wish[]): AttendanceStats {
   return wishes.reduce<AttendanceStats>(
     (acc, wish) => {
       if (wish.attendance === "attending") acc.attending += 1;

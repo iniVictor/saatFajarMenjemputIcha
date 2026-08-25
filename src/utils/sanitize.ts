@@ -1,4 +1,15 @@
 const MAX_GUEST_LENGTH = 80;
+const MAX_WISH_MESSAGE = 500;
+
+function stripUnsafeText(raw: string, maxLength: number): string {
+  return raw
+    .replace(/<[^>]*>/g, "")
+    .replace(/[<>{}[\]\\]/g, "")
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
 
 export function sanitizeGuestName(raw: string, fallback: string): string {
   let decoded = raw;
@@ -8,13 +19,13 @@ export function sanitizeGuestName(raw: string, fallback: string): string {
     decoded = raw.replace(/\+/g, " ");
   }
 
-  const cleaned = decoded
-    .replace(/<[^>]*>/g, "")
-    .replace(/[<>{}[\]\\]/g, "")
-    .replace(/[\u0000-\u001F\u007F]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, MAX_GUEST_LENGTH);
+  return stripUnsafeText(decoded, MAX_GUEST_LENGTH) || fallback;
+}
 
-  return cleaned || fallback;
+export function sanitizeWishName(raw: string): string {
+  return stripUnsafeText(raw, MAX_GUEST_LENGTH);
+}
+
+export function sanitizeWishMessage(raw: string): string {
+  return stripUnsafeText(raw, MAX_WISH_MESSAGE);
 }
