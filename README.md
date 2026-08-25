@@ -33,6 +33,16 @@ npm run build
 npm run preview
 ```
 
+## Deploy (Vercel)
+
+SPA routes like `/kirimUndangan` need a rewrite to `index.html`. File `vercel.json` already does that. After deploy, open:
+
+```text
+https://<domain>/kirimUndangan
+```
+
+Framework: Vite. Root directory: repository root (this folder).
+
 ## Customization
 
 Change these two places. You should not need to edit React components.
