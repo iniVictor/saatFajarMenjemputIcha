@@ -57,6 +57,8 @@ export function Gallery() {
               <SafeImage
                 src={src}
                 alt={`Galeri ${i + 1}`}
+                loading="lazy"
+                fetchPriority="low"
                 className={`w-full object-cover ${i % 3 === 0 ? "h-52" : "h-40"}`}
               />
             </button>

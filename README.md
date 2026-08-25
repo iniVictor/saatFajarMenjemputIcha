@@ -70,7 +70,7 @@ Replace files in `public/images/` using the same names, or point the config path
 | `hero.jpg` | Hero + closing portrait |
 | `bride.jpg` / `groom.jpg` | Couple section. Atur crop di masing-masing `couple.bride` / `couple.groom`: `positionX` (0 kiri – 100 kanan), `positionY` (0 atas – 100 bawah), `zoom` (1 normal, sampai 20). |
 | `story-01.jpg` … | Love story. Sembunyikan seluruh section dengan `loveStory.enabled: false`. |
-| `gallery-01.jpg` … | Gallery |
+| `gallery-01.webp` … | Gallery (WebP, max 1400px). File `.jpg` asli boleh tetap sebagai sumber. |
 | `decor-floral-01.svg` / `decor-floral-02.svg` | Corner ornaments |
 | `decor-wreath.svg` | Hero frame |
 
