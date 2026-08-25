@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { RSVP } from "@/components/RSVP/RSVP";
 import { Reveal } from "@/components/UI/Reveal";
 import { weddingConfig } from "@/config/wedding";
@@ -11,9 +11,16 @@ interface WishesProps {
   guestName: string;
 }
 
+function invitationScroller(): HTMLElement | null {
+  const node = document.querySelector(".phone-scroll");
+  return node instanceof HTMLElement ? node : null;
+}
+
 export function Wishes({ guestName }: WishesProps) {
   const { copy } = weddingConfig;
   const { showToast } = useToast();
+  const sectionRef = useRef<HTMLElement>(null);
+  const pinnedScroll = useRef<number | null>(null);
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [name, setName] = useState(guestName);
   const [message, setMessage] = useState("");
@@ -45,6 +52,14 @@ export function Wishes({ guestName }: WishesProps) {
     };
   }, []);
 
+  useLayoutEffect(() => {
+    if (pinnedScroll.current === null) return;
+    const scroller = invitationScroller();
+    if (scroller) scroller.scrollTop = pinnedScroll.current;
+    pinnedScroll.current = null;
+    sectionRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [wishes]);
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (submitting) return;
@@ -65,12 +80,14 @@ export function Wishes({ guestName }: WishesProps) {
     setError("");
 
     try {
-      const wish = await wishService.submitWish({
+      await wishService.submitWish({
         name: trimmedName,
         message: trimmedMessage,
         attendance,
       });
-      setWishes((current) => [wish, ...current]);
+      const latest = await wishService.getWishes();
+      pinnedScroll.current = invitationScroller()?.scrollTop ?? 0;
+      setWishes(latest);
       setMessage("");
       showToast(copy.wishSuccess);
     } catch (cause: unknown) {
@@ -81,7 +98,7 @@ export function Wishes({ guestName }: WishesProps) {
   }
 
   return (
-    <section id="wishes" className="px-6 py-14">
+    <section ref={sectionRef} id="wishes" className="px-6 py-14">
       <Reveal>
         <h2 className="font-script text-center text-[40px] leading-none text-[var(--color-secondary)]">
           {copy.wishesTitle}
@@ -97,40 +114,54 @@ export function Wishes({ guestName }: WishesProps) {
             <span className="font-medium">{stats.notAttending}</span> {copy.notAttendingLabel}
           </p>
         </div>
+      </Reveal>
 
-        <RSVP
-          name={name}
-          message={message}
-          attendance={attendance}
-          error={error}
-          submitting={submitting}
-          onNameChange={setName}
-          onMessageChange={setMessage}
-          onAttendanceChange={setAttendance}
-          onSubmit={onSubmit}
-        />
+      <RSVP
+        name={name}
+        message={message}
+        attendance={attendance}
+        error={error}
+        submitting={submitting}
+        onNameChange={setName}
+        onMessageChange={setMessage}
+        onAttendanceChange={setAttendance}
+        onSubmit={onSubmit}
+      />
 
-        <div className="wish-scroll mt-5 space-y-3">
-          {loading ? (
-            <p className="text-center text-[13px] text-[var(--color-muted)]">Memuat ucapan...</p>
-          ) : null}
-          {!loading && wishes.length === 0 ? (
-            <p className="text-center text-[13px] text-[var(--color-muted)]">Belum ada ucapan.</p>
-          ) : null}
-          {wishes.map((wish) => (
+      <div className="wish-scroll mt-5 space-y-3">
+        {loading ? (
+          <p className="text-center text-[13px] text-[var(--color-muted)]">Memuat ucapan...</p>
+        ) : null}
+        {!loading && wishes.length === 0 ? (
+          <p className="text-center text-[13px] text-[var(--color-muted)]">Belum ada ucapan.</p>
+        ) : null}
+        {wishes.map((wish) => {
+          const attending = wish.attendance === "attending";
+          return (
             <article
               key={wish.id}
-              className="rounded-[16px] bg-[rgba(255,253,248,0.7)] px-4 py-3 text-left"
+              className="flex items-start gap-3 rounded-[16px] bg-[rgba(255,253,248,0.7)] px-4 py-3 text-left"
             >
-              <p className="text-[14px] font-medium">{wish.name}</p>
-              <p className="text-[11px] text-[var(--color-muted)]">
-                {formatWishTime(wish.createdAt)}
-              </p>
-              <p className="mt-1 text-[13px] leading-relaxed">{wish.message}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-medium">{wish.name}</p>
+                <p className="text-[11px] text-[var(--color-muted)]">
+                  {formatWishTime(wish.createdAt)}
+                </p>
+                <p className="mt-1 text-[13px] leading-relaxed">{wish.message}</p>
+              </div>
+              <span
+                className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] leading-none ${
+                  attending
+                    ? "bg-[var(--color-primary)] text-white"
+                    : "bg-[#f4eee6] text-[var(--color-muted)]"
+                }`}
+              >
+                {attending ? copy.attendingLabel : copy.notAttendingLabel}
+              </span>
             </article>
-          ))}
-        </div>
-      </Reveal>
+          );
+        })}
+      </div>
     </section>
   );
 }
