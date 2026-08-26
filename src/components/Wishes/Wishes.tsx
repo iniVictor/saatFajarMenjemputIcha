@@ -22,7 +22,6 @@ export function Wishes({ guestName }: WishesProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const pinnedScroll = useRef<number | null>(null);
   const [wishes, setWishes] = useState<Wish[]>([]);
-  const [name, setName] = useState(guestName);
   const [message, setMessage] = useState("");
   const [attendance, setAttendance] = useState<Attendance>("attending");
   const [error, setError] = useState("");
@@ -64,7 +63,7 @@ export function Wishes({ guestName }: WishesProps) {
     event.preventDefault();
     if (submitting) return;
 
-    const trimmedName = name.trim();
+    const trimmedName = guestName.trim();
     const trimmedMessage = message.trim();
 
     if (trimmedName.length < 2) {
@@ -117,12 +116,11 @@ export function Wishes({ guestName }: WishesProps) {
       </Reveal>
 
       <RSVP
-        name={name}
+        name={guestName}
         message={message}
         attendance={attendance}
         error={error}
         submitting={submitting}
-        onNameChange={setName}
         onMessageChange={setMessage}
         onAttendanceChange={setAttendance}
         onSubmit={onSubmit}

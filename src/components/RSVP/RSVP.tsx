@@ -8,7 +8,6 @@ interface RSVPProps {
   attendance: Attendance;
   error: string;
   submitting?: boolean;
-  onNameChange: (value: string) => void;
   onMessageChange: (value: string) => void;
   onAttendanceChange: (value: Attendance) => void;
   onSubmit: (event: FormEvent) => void;
@@ -20,7 +19,6 @@ export function RSVP({
   attendance,
   error,
   submitting = false,
-  onNameChange,
   onMessageChange,
   onAttendanceChange,
   onSubmit,
@@ -37,9 +35,10 @@ export function RSVP({
         {copy.namePlaceholder}
         <input
           value={name}
-          onChange={(event) => onNameChange(event.target.value)}
-          className="mt-1 w-full rounded-xl border border-[rgba(141,98,73,0.18)] bg-white px-3 py-2.5 text-[14px] outline-none"
-          autoComplete="name"
+          readOnly
+          disabled
+          className="mt-1 w-full cursor-not-allowed rounded-xl border border-[rgba(141,98,73,0.18)] bg-[#f4eee6] px-3 py-2.5 text-[14px] text-[var(--color-text)] outline-none"
+          autoComplete="off"
           maxLength={80}
         />
       </label>

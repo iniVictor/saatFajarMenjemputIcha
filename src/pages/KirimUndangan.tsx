@@ -6,7 +6,11 @@ import { Toast } from "@/components/UI/Toast";
 import { weddingConfig } from "@/config/wedding";
 import { useToast } from "@/hooks/useToast";
 import { copyText } from "@/utils/clipboard";
-import { buildGuestInviteUrl } from "@/utils/inviteLink";
+import {
+  buildGuestInviteMessage,
+  buildGuestInviteUrl,
+  buildWhatsAppShareUrl,
+} from "@/utils/inviteLink";
 import { coupleNames } from "@/utils/format";
 
 export function KirimUndangan() {
@@ -14,6 +18,7 @@ export function KirimUndangan() {
   const { showToast } = useToast();
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const names = coupleNames(couple.bride.name, couple.groom.name, couple.ampersand);
 
@@ -23,20 +28,23 @@ export function KirimUndangan() {
 
   function onGenerate(event: FormEvent) {
     event.preventDefault();
-    const generated = buildGuestInviteUrl(name);
-    if (!generated) {
+    const generatedUrl = buildGuestInviteUrl(name);
+    const generatedMessage = buildGuestInviteMessage(name);
+    if (!generatedUrl || !generatedMessage) {
       setUrl("");
+      setMessage("");
       setError("Mohon isi nama tamu undangan.");
       return;
     }
     setError("");
-    setUrl(generated);
+    setUrl(generatedUrl);
+    setMessage(generatedMessage);
   }
 
   async function onCopy() {
-    if (!url) return;
-    const ok = await copyText(url);
-    showToast(ok ? "Tautan undangan berhasil disalin" : "Tidak dapat menyalin tautan");
+    if (!message) return;
+    const ok = await copyText(message);
+    showToast(ok ? "Pesan undangan berhasil disalin" : "Tidak dapat menyalin pesan");
   }
 
   return (
@@ -57,8 +65,8 @@ export function KirimUndangan() {
               Kirim Undangan
             </h2>
             <p className="mx-auto mt-2 max-w-[300px] text-[13px] leading-relaxed text-[var(--color-muted)]">
-              Masukkan nama tamu, lalu generate tautan personal. Spasi dan simbol &amp; akan
-              ikut tersimpan di URL.
+              Masukkan nama tamu, lalu generate pesan WhatsApp. Tanda * tetap ada supaya nama
+              dan judul menjadi tebal di WhatsApp.
             </p>
 
             <form className="mt-8 space-y-4 text-left" onSubmit={onGenerate} noValidate>
@@ -79,18 +87,26 @@ export function KirimUndangan() {
               </button>
             </form>
 
-            {url ? (
+            {message ? (
               <div className="mt-8 rounded-[18px] bg-[rgba(255,253,248,0.78)] px-4 py-5 text-left">
                 <p className="text-[11px] tracking-[0.16em] text-[var(--color-muted)] uppercase">
-                  Tautan undangan
+                  Pesan WhatsApp
                 </p>
-                <p className="mt-2 break-all font-display text-[15px] leading-relaxed text-[var(--color-secondary)]">
-                  {url}
-                </p>
+                <pre className="mt-3 whitespace-pre-wrap font-[inherit] text-[13px] leading-relaxed text-[var(--color-text)]">
+                  {message}
+                </pre>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button type="button" className="btn-invite" onClick={() => void onCopy()}>
-                    Salin tautan
+                    Salin pesan
                   </button>
+                  <a
+                    href={buildWhatsAppShareUrl(message)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-11 items-center rounded-full border border-[rgba(141,98,73,0.25)] px-4 text-[11px] tracking-[0.12em] uppercase text-[var(--color-text)]"
+                  >
+                    WhatsApp
+                  </a>
                   <a
                     href={url}
                     target="_blank"
