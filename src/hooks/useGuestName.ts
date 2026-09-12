@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { weddingConfig } from "@/config/wedding";
-import { lookupGuest } from "@/services/guestService";
+import { lookupGuest, readCachedGuest } from "@/services/guestService";
 import { readGuestToken } from "@/utils/inviteLink";
 import { sanitizeGuestName } from "@/utils/sanitize";
 
@@ -10,13 +10,27 @@ export interface GuestInviteState {
   loading: boolean;
 }
 
+function initialGuestState(fallback: string): GuestInviteState {
+  if (typeof window === "undefined") {
+    return { guestName: fallback, blocked: true, loading: true };
+  }
+
+  const token = readGuestToken();
+  if (!token) {
+    return { guestName: fallback, blocked: true, loading: false };
+  }
+
+  const cached = readCachedGuest(token);
+  if (cached) {
+    return { guestName: sanitizeGuestName(cached, fallback), blocked: false, loading: false };
+  }
+
+  return { guestName: fallback, blocked: true, loading: true };
+}
+
 export function useGuestName(): GuestInviteState {
   const fallback = weddingConfig.copy.defaultGuest;
-  const [state, setState] = useState<GuestInviteState>({
-    guestName: fallback,
-    blocked: true,
-    loading: true,
-  });
+  const [state, setState] = useState<GuestInviteState>(() => initialGuestState(fallback));
 
   useEffect(() => {
     const token = readGuestToken();
@@ -27,7 +41,15 @@ export function useGuestName(): GuestInviteState {
       return;
     }
 
-    setState({ guestName: fallback, blocked: true, loading: true });
+    const cached = readCachedGuest(token);
+    if (cached) {
+      setState({
+        guestName: sanitizeGuestName(cached, fallback),
+        blocked: false,
+        loading: false,
+      });
+      return;
+    }
 
     void lookupGuest(token)
       .then((name) => {

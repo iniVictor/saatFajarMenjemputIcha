@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv, type Plugin } from "vite";
@@ -21,9 +22,14 @@ function omitFromDist(relativePaths: string[]) {
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
+    if (req.readableEnded) {
+      resolve({});
+      return;
+    }
+
     const chunks: Buffer[] = [];
     req.on("data", (chunk: Buffer) => {
-      chunks.push(chunk);
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
     });
     req.on("end", () => {
       const raw = Buffer.concat(chunks).toString("utf8").trim();
@@ -38,6 +44,7 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
       }
     });
     req.on("error", reject);
+    req.resume();
   });
 }
 
@@ -46,6 +53,10 @@ function sendJson(res: ServerResponse, status: number, payload: unknown) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
   res.end(JSON.stringify(payload));
+}
+
+async function loadStore<T>(relativePath: string): Promise<T> {
+  return import(pathToFileURL(path.resolve(import.meta.dirname, relativePath)).href) as Promise<T>;
 }
 
 function invitationDevApi(): Plugin {
@@ -64,7 +75,7 @@ function invitationDevApi(): Plugin {
         void (async () => {
           try {
             if (pathname === "/api/guests") {
-              const store = (await server.ssrLoadModule("/lib/guestStore.js")) as {
+              const store = await loadStore<{
                 findGuestByToken: (token: string) => Promise<{ name: string } | null>;
                 createGuest: (
                   input: unknown,
@@ -72,7 +83,7 @@ function invitationDevApi(): Plugin {
                   | { ok: true; guest: unknown }
                   | { ok: false; status: number; error: string }
                 >;
-              };
+              }>("lib/guestStore.js");
               if (req.method === "GET") {
                 const guest = await store.findGuestByToken(requestUrl.searchParams.get("g") ?? "");
                 if (!guest) {
@@ -96,7 +107,7 @@ function invitationDevApi(): Plugin {
               return;
             }
 
-            const store = (await server.ssrLoadModule("/lib/wishStore.js")) as {
+            const store = await loadStore<{
               listWishes: () => Promise<unknown>;
               createWish: (
                 input: unknown,
@@ -104,7 +115,7 @@ function invitationDevApi(): Plugin {
                 | { ok: true; wish: unknown }
                 | { ok: false; status: number; error: string }
               >;
-            };
+            }>("lib/wishStore.js");
             if (req.method === "GET") {
               sendJson(res, 200, await store.listWishes());
               return;

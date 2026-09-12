@@ -1,9 +1,9 @@
 import { createGuest, findGuestByToken } from "../lib/guestStore.js";
 
-function send(res, status, payload) {
+function send(res, status, payload, cacheControl = "no-store") {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("Cache-Control", cacheControl);
   res.end(JSON.stringify(payload));
 }
 
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         send(res, 404, { error: "Link undangan tidak valid." });
         return;
       }
-      send(res, 200, { name: guest.name });
+      send(res, 200, { name: guest.name }, "private, max-age=300");
       return;
     }
 
