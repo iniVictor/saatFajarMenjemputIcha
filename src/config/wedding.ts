@@ -188,6 +188,9 @@ export const weddingConfig: WeddingConfig = {
     addressedTo: "Kepada Yth.",
     addressedHonorific: "Bapak/Ibu/Saudara/i",
     defaultGuest: "Tamu Undangan",
+    invalidInviteMessage:
+      "Mohon maaf link undangan anda bermasalah, silahkan konfirmasi ke Calon Pengantin",
+    invalidInviteClose: "Tutup",
     heroIntro: "Kami berharap Anda menjadi bagian dari hari istimewa kami.",
     saveTheDate: "Save The Date",
     coupleSalam: "Assalamu'alaikum Wr. Wb.",

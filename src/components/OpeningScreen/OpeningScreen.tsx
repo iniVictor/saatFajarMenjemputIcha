@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { MailOpen } from "lucide-react";
 import { weddingConfig } from "@/config/wedding";
 import { FloralCorners } from "@/components/Decor/FloralCorners";
@@ -9,13 +10,31 @@ import { imageCropStyle } from "@/utils/imageCrop";
 
 interface OpeningScreenProps {
   guestName: string;
+  blocked?: boolean;
+  loading?: boolean;
   leaving: boolean;
   onOpen: () => void;
 }
 
-export function OpeningScreen({ guestName, leaving, onOpen }: OpeningScreenProps) {
+export function OpeningScreen({
+  guestName,
+  blocked = false,
+  loading = false,
+  leaving,
+  onOpen,
+}: OpeningScreenProps) {
   const { couple, copy, cover } = weddingConfig;
   const names = coupleNames(couple.bride.name, couple.groom.name, couple.ampersand);
+  const [alertOpen, setAlertOpen] = useState(false);
+
+  function handleOpen() {
+    if (loading) return;
+    if (blocked) {
+      setAlertOpen(true);
+      return;
+    }
+    onOpen();
+  }
 
   return (
     <section
@@ -49,13 +68,43 @@ export function OpeningScreen({ guestName, leaving, onOpen }: OpeningScreenProps
         </p>
         <p className="mt-1 text-[12px] text-[var(--color-muted)]">{copy.addressedHonorific}</p>
         <p className="font-display mt-2 max-w-[300px] break-words text-[clamp(20px,5.8vw,26px)] font-medium italic leading-snug tracking-[0.03em] text-[var(--color-primary)]">
-          {guestName}
+          {loading ? "\u00a0" : guestName}
         </p>
-        <button type="button" className="btn-invite mt-8" onClick={onOpen}>
+        <button
+          type="button"
+          className={`btn-invite mt-8 ${loading ? "opacity-60" : ""}`}
+          onClick={handleOpen}
+          disabled={loading}
+        >
           <MailOpen size={15} strokeWidth={1.7} />
-          {copy.openButton}
+          {loading ? "Memuat..." : copy.openButton}
         </button>
       </div>
+
+      {alertOpen ? (
+        <div
+          className="absolute inset-0 z-[80] flex items-center justify-center bg-[rgba(63,49,40,0.46)] px-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="invalid-invite-title"
+          onClick={() => setAlertOpen(false)}
+        >
+          <div
+            className="w-full max-w-[300px] rounded-[22px] bg-[var(--color-cream)] px-5 py-6 text-center shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p
+              id="invalid-invite-title"
+              className="text-[14px] leading-relaxed text-[var(--color-text)]"
+            >
+              {copy.invalidInviteMessage}
+            </p>
+            <button type="button" className="btn-invite mt-5 w-full" onClick={() => setAlertOpen(false)}>
+              {copy.invalidInviteClose}
+            </button>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

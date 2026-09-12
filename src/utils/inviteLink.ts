@@ -12,16 +12,28 @@ export function guestNameFromInput(name: string): string {
   return name.replace(/\s+/g, " ").trim();
 }
 
-export function buildGuestInviteUrl(name: string, origin = PUBLIC_INVITE_ORIGIN): string {
-  const trimmed = guestNameFromInput(name);
-  if (!trimmed) return "";
-  return `${origin}/?to=${encodeURIComponent(trimmed)}`;
+export function readGuestToken(search = window.location.search): string {
+  try {
+    return new URLSearchParams(search).get("g")?.trim() ?? "";
+  } catch {
+    return "";
+  }
 }
 
-export function buildGuestInviteMessage(name: string, origin = PUBLIC_INVITE_ORIGIN): string {
+export function buildGuestInviteUrl(token: string, origin = PUBLIC_INVITE_ORIGIN): string {
+  const trimmed = token.trim();
+  if (!trimmed) return "";
+  return `${origin}/?g=${encodeURIComponent(trimmed)}`;
+}
+
+export function buildGuestInviteMessage(
+  name: string,
+  token: string,
+  origin = PUBLIC_INVITE_ORIGIN,
+): string {
   const trimmed = guestNameFromInput(name);
-  const url = buildGuestInviteUrl(trimmed, origin);
-  if (!url) return "";
+  const url = buildGuestInviteUrl(token, origin);
+  if (!trimmed || !url) return "";
 
   const { couple } = weddingConfig;
   const fullNames = coupleNames(couple.bride.fullName, couple.groom.fullName, couple.ampersand);

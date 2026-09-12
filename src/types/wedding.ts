@@ -110,6 +110,8 @@ export interface CopyConfig {
   addressedTo: string;
   addressedHonorific: string;
   defaultGuest: string;
+  invalidInviteMessage: string;
+  invalidInviteClose: string;
   heroIntro: string;
   saveTheDate: string;
   coupleSalam: string;

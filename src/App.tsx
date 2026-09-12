@@ -29,8 +29,10 @@ import { isKirimUndanganPath } from "@/utils/inviteLink";
 const SECTION_IDS = ["home", "couple", "event", "gallery", "wishes"] as const;
 
 function Invitation() {
-  const guestName = useGuestName();
-  const { opened, coverVisible, open } = useInvitationOpen();
+  const { guestName, blocked, loading } = useGuestName();
+  const invitation = useInvitationOpen();
+  const opened = !loading && !blocked && invitation.opened;
+  const coverVisible = loading || blocked || invitation.coverVisible;
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeId = useScrollSpy(SECTION_IDS, scrollRef, opened);
   const music = useMusic({
@@ -57,8 +59,10 @@ function Invitation() {
           {coverVisible ? (
             <OpeningScreen
               guestName={guestName}
+              blocked={blocked}
+              loading={loading}
               leaving={opened}
-              onOpen={open}
+              onOpen={invitation.open}
             />
           ) : null}
 

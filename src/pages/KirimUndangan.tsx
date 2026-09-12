@@ -6,6 +6,7 @@ import { Toast } from "@/components/UI/Toast";
 import { weddingConfig } from "@/config/wedding";
 import { useToast } from "@/hooks/useToast";
 import { copyText } from "@/utils/clipboard";
+import { createGuest } from "@/services/guestService";
 import {
   buildGuestInviteMessage,
   buildGuestInviteUrl,
@@ -18,27 +19,43 @@ export function KirimUndangan() {
   const { showToast } = useToast();
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const names = coupleNames(couple.bride.name, couple.groom.name, couple.ampersand);
 
   useEffect(() => {
     document.title = `Kirim Undangan — ${names}`;
   }, [names]);
 
-  function onGenerate(event: FormEvent) {
+  async function onGenerate(event: FormEvent) {
     event.preventDefault();
-    const generatedUrl = buildGuestInviteUrl(name);
-    const generatedMessage = buildGuestInviteMessage(name);
-    if (!generatedUrl || !generatedMessage) {
-      setUrl("");
-      setMessage("");
-      setError("Mohon isi nama tamu undangan.");
-      return;
-    }
+    setSaving(true);
     setError("");
-    setUrl(generatedUrl);
-    setMessage(generatedMessage);
+
+    try {
+      const guest = await createGuest(name);
+      const generatedUrl = buildGuestInviteUrl(guest.token);
+      const generatedMessage = buildGuestInviteMessage(guest.name, guest.token);
+      if (!generatedUrl || !generatedMessage) {
+        setUrl("");
+        setPreviewUrl("");
+        setMessage("");
+        setError("Mohon isi nama tamu undangan.");
+        return;
+      }
+      setUrl(generatedUrl);
+      setPreviewUrl(buildGuestInviteUrl(guest.token, window.location.origin));
+      setMessage(generatedMessage);
+    } catch (err) {
+      setUrl("");
+      setPreviewUrl("");
+      setMessage("");
+      setError(err instanceof Error ? err.message : "Gagal menyimpan nama tamu.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function onCopy() {
@@ -65,8 +82,8 @@ export function KirimUndangan() {
               Kirim Undangan
             </h2>
             <p className="mx-auto mt-2 max-w-[300px] text-[13px] leading-relaxed text-[var(--color-muted)]">
-              Masukkan nama tamu, lalu generate pesan WhatsApp. Tanda * tetap ada supaya nama
-              dan judul menjadi tebal di WhatsApp.
+              Masukkan nama tamu, lalu generate pesan WhatsApp. Nama disimpan di database,
+              link hanya berisi kode tamu.
             </p>
 
             <form className="mt-8 space-y-4 text-left" onSubmit={onGenerate} noValidate>
@@ -82,8 +99,8 @@ export function KirimUndangan() {
                 />
               </label>
               {error ? <p className="text-[12px] text-[#9a3b32]">{error}</p> : null}
-              <button type="submit" className="btn-invite w-full">
-                Generate
+              <button type="submit" className="btn-invite w-full" disabled={saving}>
+                {saving ? "Menyimpan..." : "Generate"}
               </button>
             </form>
 
@@ -108,7 +125,7 @@ export function KirimUndangan() {
                     WhatsApp
                   </a>
                   <a
-                    href={url}
+                    href={previewUrl || url}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex min-h-11 items-center rounded-full border border-[rgba(141,98,73,0.25)] px-4 text-[11px] tracking-[0.12em] uppercase text-[var(--color-text)]"

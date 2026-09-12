@@ -48,19 +48,54 @@ function sendJson(res: ServerResponse, status: number, payload: unknown) {
   res.end(JSON.stringify(payload));
 }
 
-function wishesDevApi(): Plugin {
+function invitationDevApi(): Plugin {
   return {
-    name: "wishes-dev-api",
+    name: "invitation-dev-api",
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const pathname = req.url?.split("?")[0];
-        if (pathname !== "/api/wishes") {
+        const requestUrl = new URL(req.url ?? "/", "http://localhost");
+        const pathname = requestUrl.pathname;
+
+        if (pathname !== "/api/wishes" && pathname !== "/api/guests") {
           next();
           return;
         }
 
         void (async () => {
           try {
+            if (pathname === "/api/guests") {
+              const store = (await server.ssrLoadModule("/lib/guestStore.js")) as {
+                findGuestByToken: (token: string) => Promise<{ name: string } | null>;
+                createGuest: (
+                  input: unknown,
+                ) => Promise<
+                  | { ok: true; guest: unknown }
+                  | { ok: false; status: number; error: string }
+                >;
+              };
+              if (req.method === "GET") {
+                const guest = await store.findGuestByToken(requestUrl.searchParams.get("g") ?? "");
+                if (!guest) {
+                  sendJson(res, 404, { error: "Link undangan tidak valid." });
+                  return;
+                }
+                sendJson(res, 200, { name: guest.name });
+                return;
+              }
+              if (req.method === "POST") {
+                const result = await store.createGuest(await readJsonBody(req));
+                if (!result.ok) {
+                  sendJson(res, result.status, { error: result.error });
+                  return;
+                }
+                sendJson(res, 201, result.guest);
+                return;
+              }
+              res.setHeader("Allow", "GET, POST");
+              sendJson(res, 405, { error: "Method not allowed" });
+              return;
+            }
+
             const store = (await server.ssrLoadModule("/lib/wishStore.js")) as {
               listWishes: () => Promise<unknown>;
               createWish: (
@@ -86,7 +121,7 @@ function wishesDevApi(): Plugin {
             res.setHeader("Allow", "GET, POST");
             sendJson(res, 405, { error: "Method not allowed" });
           } catch (error) {
-            const message = error instanceof Error ? error.message : "Gagal menyimpan ucapan.";
+            const message = error instanceof Error ? error.message : "Gagal terhubung ke database.";
             sendJson(res, 500, { error: message });
           }
         })();
@@ -107,7 +142,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(),
-      wishesDevApi(),
+      invitationDevApi(),
       omitFromDist(["images/fromGDrive"]),
     ],
     resolve: {
