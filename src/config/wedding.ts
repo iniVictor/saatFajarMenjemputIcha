@@ -104,17 +104,11 @@ export const weddingConfig: WeddingConfig = {
     "/images/gallery-01.webp",
     "/images/gallery-02.webp",
     "/images/gallery-03.webp",
-    "/images/gallery-04.webp",
     "/images/gallery-05.webp",
     "/images/gallery-06.webp",
-    "/images/gallery-07.webp",
-    "/images/gallery-08.webp",
-    "/images/gallery-10.webp",
     "/images/gallery-11.webp",
     "/images/gallery-12.webp",
     "/images/gallery-13.webp",
-    "/images/gallery-14.webp",
-    "/images/gallery-20.webp",
   ],
 
   streaming: {

@@ -2,10 +2,21 @@ import { coupleNames } from "@/utils/format";
 import { weddingConfig } from "@/config/wedding";
 
 const KIRIM_UNDANGAN_PATH = "/kirimUndangan";
-export const PUBLIC_INVITE_ORIGIN = "https://saatfajarmenjemputicha.vercel.app";
+export const PUBLIC_INVITE_ORIGIN = "https://undanganfajaricha.online";
 
 export function isKirimUndanganPath(pathname = window.location.pathname): boolean {
   return pathname.replace(/\/+$/, "") === KIRIM_UNDANGAN_PATH;
+}
+
+export function inviteOrigin(): string {
+  if (typeof window === "undefined") return PUBLIC_INVITE_ORIGIN;
+
+  const { hostname, origin } = window.location;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return PUBLIC_INVITE_ORIGIN;
+  }
+
+  return origin;
 }
 
 export function guestNameFromInput(name: string): string {
@@ -20,7 +31,7 @@ export function readGuestToken(search = window.location.search): string {
   }
 }
 
-export function buildGuestInviteUrl(token: string, origin = PUBLIC_INVITE_ORIGIN): string {
+export function buildGuestInviteUrl(token: string, origin = inviteOrigin()): string {
   const trimmed = token.trim();
   if (!trimmed) return "";
   return `${origin}/?g=${encodeURIComponent(trimmed)}`;
@@ -29,7 +40,7 @@ export function buildGuestInviteUrl(token: string, origin = PUBLIC_INVITE_ORIGIN
 export function buildGuestInviteMessage(
   name: string,
   token: string,
-  origin = PUBLIC_INVITE_ORIGIN,
+  origin = inviteOrigin(),
 ): string {
   const trimmed = guestNameFromInput(name);
   const url = buildGuestInviteUrl(token, origin);
