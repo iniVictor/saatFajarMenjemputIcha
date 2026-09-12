@@ -2,7 +2,7 @@ import { coupleNames } from "@/utils/format";
 import { weddingConfig } from "@/config/wedding";
 
 const KIRIM_UNDANGAN_PATH = "/kirimUndangan";
-export const PUBLIC_INVITE_ORIGIN = "https://undanganfajaricha.online";
+export const PUBLIC_INVITE_ORIGIN = "https://www.undanganfajaricha.online";
 
 export function isKirimUndanganPath(pathname = window.location.pathname): boolean {
   return pathname.replace(/\/+$/, "") === KIRIM_UNDANGAN_PATH;
@@ -12,7 +12,12 @@ export function inviteOrigin(): string {
   if (typeof window === "undefined") return PUBLIC_INVITE_ORIGIN;
 
   const { hostname, origin } = window.location;
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
+  if (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "undanganfajaricha.online" ||
+    hostname.endsWith(".vercel.app")
+  ) {
     return PUBLIC_INVITE_ORIGIN;
   }
 

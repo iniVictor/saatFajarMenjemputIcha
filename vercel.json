@@ -1,6 +1,19 @@
 {
   "framework": "vite",
   "regions": ["sin1"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "undanganfajaricha.online"
+        }
+      ],
+      "destination": "https://www.undanganfajaricha.online/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",

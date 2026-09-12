@@ -78,6 +78,7 @@ button {
 }
 
 .shell {
+  min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   justify-content: center;
@@ -90,6 +91,7 @@ button {
   position: relative;
   width: 100%;
   max-width: var(--container-width);
+  height: 100vh;
   height: 100dvh;
   overflow: hidden;
   background:
@@ -98,7 +100,15 @@ button {
   box-shadow: 0 0 0 1px rgba(141, 98, 73, 0.08);
 }
 
-@media (min-width: 768px) {
+@media (hover: none) and (pointer: coarse) {
+  .phone {
+    max-width: none;
+    width: 100%;
+    box-shadow: none;
+  }
+}
+
+@media (min-width: 768px) and (hover: hover) {
   .phone {
     box-shadow:
       0 30px 80px rgba(63, 49, 40, 0.16),
