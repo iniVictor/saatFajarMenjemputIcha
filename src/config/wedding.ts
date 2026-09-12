@@ -12,9 +12,9 @@ export const weddingConfig: WeddingConfig = {
       instagram: "https://instagram.com/wardha_icha",
       image: "/images/bride.webp",
       imageAlt: "Wardatun Nafisah",
-      positionX: 35,
-      positionY: 50,
-      zoom: 2.9,
+      positionX: 52,
+      positionY: 40,
+      zoom: 3.5,
     },
     groom: {
       name: "Fajar",
