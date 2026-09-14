@@ -14,7 +14,7 @@ export const weddingConfig: WeddingConfig = {
       imageAlt: "Wardatun Nafisah",
       positionX: 40,
       positionY: 40,
-      zoom: 2,
+      zoom: 1.2,
     },
     groom: {
       name: "Fajar",
